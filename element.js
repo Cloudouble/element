@@ -18,8 +18,8 @@ window.CloudoubleElement = window.CloudoubleElement || Object.defineProperties({
         namespace = namespace || 'cloudouble/element'
         window.CloudoubleElement.root = root ? String(root) : (window.CloudoubleElement.root || `${window.location.origin}${window.location.pathname}`.split('/').slice(0,-1).join('/') + '/' + namespace)
         window.CloudoubleElement.prefix = prefix ? prefix : namespace.replace(/\//g, '-')
-        window.CloudoubleElement.elements.Base = window.CloudoubleElement.Base
-        ;((elements && typeof elements == 'object' && elements.constructor.name == 'Array') ? Promise.resolve(elements) : window.CloudoubleElement.loadJSON(elements ? String(elements) : 'index')).then(elements => {
+        window.CloudoubleElement.elements.Base = window.CloudoubleElement.Base;
+        return ((elements && typeof elements == 'object' && elements.constructor.name == 'Array') ? Promise.resolve(elements) : window.CloudoubleElement.loadJSON(elements ? String(elements) : 'index')).then(elements => {
             if (elements && typeof elements === 'object' && elements.constructor.name === 'Array') {
                 var dependingClasses = {}
                 var promises = []
