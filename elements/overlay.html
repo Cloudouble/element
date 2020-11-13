@@ -1,0 +1,111 @@
+<style>
+:host {
+    contain: content;
+    display: block;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: var(--widget-background-color, #ffffff);
+    width: 100%;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    transition: height 0.25s;
+    color: black;
+    overflow: auto;
+    opacity: 0.8;
+}
+
+:host-context([open=true]) {
+    height: 100%;
+    transition: height 0.35s;
+}
+
+:host cloudouble-element-button[name=close] {
+    position: absolute;
+    top: 0;
+    left: calc(50% - 36px);
+}
+
+h1 {
+    margin-top: 100px;
+    text-align: center;
+}
+
+:host cloudouble-element-button[name=close] {
+    position: absolute;
+    top: 0;
+    left: calc(50% - 36px);
+}
+
+::slotted(input), ::slotted(cloudouble-element-link) {
+    display: block;
+    width: 50%;
+    min-width: 100px;
+    margin-top: 40px;
+    font-size: 24px;
+    border: none;
+    outline: 20px solid #000000cc;
+    margin-left: calc(25% - 10px);
+    padding: 5px 10px;
+}
+
+::slotted(cloudouble-element-button.bottom) {
+    position: absolute;
+    top: calc(100% - 80px);
+    left: calc(50% - 36px);
+}
+
+::slotted(iframe) {
+    border: none;
+    width: 100%;
+}
+
+:host-context([id=navigation]) ::slotted(cloudouble-element-link) {
+    width: 240px;
+    font-size: 24px;
+    height: 32px;
+    border: none;
+    outline: none;
+    margin-top: 8px;
+    padding: 0;
+    text-align: left;
+    margin-left: calc(50% - 120px);
+    color: var(--widget-font-color);
+}
+:host-context([id=navigation]) ::slotted(cloudouble-element-link[selected=true]) {
+    font-weight: bold;
+}
+</style>
+<template>
+    <cloudouble-element-button icon="cancel" href="javascript:void(0)" name="close">Close</cloudouble-element-button>
+    <h1></h1>
+    <slot></slot>
+</template>
+<script>
+    /* global HTMLElement */
+    class Overlay extends window.CloudoubleElement.elements.Base {
+        
+        constructor() {
+            super()
+            var $this = this
+            var title = $this.getAttribute('title') || $this.getAttribute('name') ||  $this.getAttribute('id') || ''
+            if (title) {
+                $this.title = title[0].toUpperCase() + title.slice(1)
+            }
+        }
+
+        static get observedAttributes() {
+            return (super.observedAttributes || []).concat('open', 'title')
+        }
+
+        connectedCallback() {
+            var $this = this
+            $this.shadowRoot.querySelector('h1').innerHTML = $this.title
+            $this.shadowRoot.querySelector('[name=close]').addEventListener('click', event => {
+                $this.open = false
+            })
+        }
+        
+    }
+</script>

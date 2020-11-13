@@ -1,0 +1,87 @@
+<style>
+:host {
+    --size-button: 72px;
+    --grid: calc(var(--size-button, 72px) / 12);
+    display: inline-block;
+    background-color: transparent;
+    border-width: 0;
+    border-style: none;
+    border-color: transparent;
+    border-image: none;
+    padding: 0;
+    overflow: hidden;
+    text-align: var(--button-text-align, center);
+    width: var(--width-button, var(--size-button, 72px));
+    height: var(--height-button, var(--size-button, 72px));
+    margin-left: calc(var(--grid, 6px) * 2);
+    margin-top: calc(var(--grid, 6px) * 2);
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+:host cloudouble-element-icon {
+    display: var(--icon-display, block);
+    --size-icon: calc(var(--grid, 6px) * 6);
+    margin-top: var(--icon-margin-top, calc(var(--grid, 6px) * 1));
+    cursor: pointer;
+}
+
+:host label {
+    display: var(--label-display, block);
+    font-weight: var(--label-font-weight, bold);
+    font-size: var(--label-font-size, calc(var(--grid, 6px) * 2));
+    cursor: pointer;
+    margin-top: var(--label-margin-top, 0);
+    margin-left: var(--label-margin-left, 0);
+    vertical-align: var(--label-vertical-align, baseline);
+}
+
+:host(:hover) {
+    opacity: 1;
+}
+
+:host-context([disabled=true]), :host-context([disabled=true]:hover) {
+    opacity: 0.5;
+    cursor: default;
+}
+:host-context([disabled=true]) cloudouble-element-icon, :host-context([disabled=true]:hover) cloudouble-element-icon, :host-context([disabled=true]) label, :host-context([disabled=true]:hover) label {
+    cursor: default;
+}
+</style>
+<template>
+    <label><slot></slot></label>
+</template>
+<script>
+    /* global */
+    class Button extends window.CloudoubleElement.elements.Link {
+        
+        constructor() {
+            super()
+            this.href = this.getAttribute('href') || ''
+        }
+
+        static get observedAttributes() {
+            return (super.observedAttributes || []).concat('disabled')
+        }
+
+        connectedCallback() {
+            var $this = this
+            $this.addEventListener('click', event => {
+                if (String($this.disabled) !== 'true' && $this.href) {
+                    if ($this.href[0] === '#') {
+                        window.location.hash = $this.href
+                    } else if ($this.href.slice(0,8) == 'https:\/\/') {
+                        $this.target ? window.open($this.href, $this.target) : window.location = $this.href
+                    }
+                } 
+            })
+            if (!$this.innerText) {
+                var icon = $this.shadowRoot.querySelector('cloudouble-element-icon')
+                if (icon) {
+                    icon.setAttribute('style', `--size-icon: ${window.getComputedStyle($this).getPropertyValue('--size-button')}; margin-top: 0;`)
+                }
+            }
+        }
+
+    }
+</script>

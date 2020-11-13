@@ -1,0 +1,105 @@
+<style>
+:host {
+    contain: content;
+    display: block;
+    overflow: hidden;
+    position: relative;
+    padding: 0;
+    height: 100px;
+    background: var(--widget-background-color, #ffffff);
+}
+
+::slotted([tab]) {
+    display: none;
+    width: 100%;
+    height: calc(100% - 32px);
+    position: absolute;
+    left: 0;
+    top: 32px    
+}
+::slotted([tab][selected]) {
+    display: block;
+}
+
+:host [name="tab-bar"] {
+    display: block;
+    height: 32px;
+}
+:host [name="tab-bar"] cloudouble-element-button {
+    display: inline-block;
+    margin-top: 0;
+    margin-left: 0;
+    padding-left: 5px;
+    --width-button: 145px;
+    --height-button: 31px;
+    --size-button: 40px;
+    --button-text-align: left;
+    --size-icon: 40px;
+    --icon-display: inline-block;
+    --label-display: inline-block;
+    --label-font-size: 18px;
+    --label-margin-top: 4px;
+    --icon-margin-top: 4px;
+    --label-vertical-align: top;
+    --label-margin-left: 5px;
+    background-color: var(--widget-font-color, #000000);
+    color: var(--widget-background-color #ffffff);
+    opacity: 0.85;
+}
+:host [name="tab-bar"] cloudouble-element-button[selected] {
+    background-color: var(--widget-background-color, #ffffff);
+    color: var(--widget-font-color, #00000);
+}
+</style>
+<template>
+    <div name="tab-bar"></div>
+    <div name="tab-container">
+        <slot></slot>
+    </div>
+</template>
+<script>
+    /* global HTMLElement */
+    class Tabs extends window.CloudoubleElement.elements.Base {
+        
+        constructor() {
+            super()
+            var $this = this
+            var title = $this.getAttribute('title') || $this.getAttribute('name') ||  $this.getAttribute('id') || ''
+            if (title) {
+                $this.title = title[0].toUpperCase() + title.slice(1)
+            }
+        }
+
+        static get observedAttributes() {
+            return (super.observedAttributes || []).concat('open', 'title')
+        }
+
+        connectedCallback() {
+            var $this = this
+            var tabBar = $this.shadowRoot.querySelector('[name="tab-bar"]')
+            var tabs = Array.from($this.querySelectorAll('[tab]'))
+            tabs.forEach(tab => {
+                var tabButton = document.createElement('cloudouble-element-button')
+                tabButton.innerHTML = tab.getAttribute('tab')
+                if (tab.hasAttribute('icon')) {
+                    tabButton.setAttribute('icon', tab.getAttribute('icon'))
+                }
+                if (tab.hasAttribute('selected')) {
+                    tabButton.setAttribute('selected', 'true')
+                }
+                tabButton.addEventListener('click', event => {
+                    tabBar.querySelectorAll('cloudouble-element-button').forEach(pb => {
+                        pb.removeAttribute('selected')
+                    })
+                    tabs.forEach(t => {
+                        t.removeAttribute('selected')
+                    })
+                    tabButton.setAttribute('selected', 'true')
+                    tab.setAttribute('selected', 'true')
+                })
+                tabBar.append(tabButton)
+            })
+        }
+        
+    }
+</script>

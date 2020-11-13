@@ -1,0 +1,41 @@
+<style>
+:host {
+    cursor: pointer;
+    position: relative;
+}
+
+::slotted(p-icon) {
+    float: right;
+    position: relative;
+}
+</style>
+<template>
+    <a><slot></slot></a>
+</template>
+<script>
+    /* global */
+    class Link extends window.CloudoubleElement.elements.Symbol {
+        
+        constructor() {
+            super()
+            this.href = this.getAttribute('href') || ''
+        }
+        
+        connectedCallback() {
+            this.addEventListener('click', event => {
+                if (this.href) {
+                    this.target ? window.open(this.href, this.target) : window.location = this.href
+                }
+            })
+        }
+
+        static get observedAttributes() {
+            return (super.observedAttributes || []).concat('href', 'target')
+        }
+
+        href($this, value) {
+            return value || ($this.name ? `#${$this.name}` : '') || ''
+        }
+
+    }
+</script>
