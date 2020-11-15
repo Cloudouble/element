@@ -26,15 +26,10 @@ slot {
 <script>
     /* global */
     class Icon extends window.CloudoubleElement.elements.Base {
-        connectedCallback() {
-            var $this = this
-            var fontStyleLink = document.head.querySelector('link[href="https:\/\/fonts.googleapis.com\/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone"]')
-            if (!fontStyleLink) {
-                fontStyleLink = document.createElement('link')
-                fontStyleLink.setAttribute('rel', 'stylesheet')
-                fontStyleLink.setAttribute('href', 'https:\/\/fonts.googleapis.com\/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone')
-                document.head.append(fontStyleLink)
-            }
+        static get css() {
+            return (super.css || []).concat(
+                'https:\/\/fonts.googleapis.com\/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone' 
+            )
         }
     }
 </script>
