@@ -1,6 +1,6 @@
 /* global fetch customElements HTMLElement CustomEvent */
 window.Cloudouble.Element = window.Cloudouble.Element || Object.defineProperties({}, {
-    version: {configurable: false, enumerable: true, writable: false, value: '1.1.2'}, 
+    version: {configurable: false, enumerable: true, writable: false, value: '1.1.3'}, 
     root: {configurable: false, enumerable: true, writable: true, value: null}, 
     prefix: {configurable: false, enumerable: true, writable: true, value: null}, 
     elements: {configurable: false, enumerable: true, writable: true, value: {}}, 

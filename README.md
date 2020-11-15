@@ -4,7 +4,7 @@ Simple framework to make custom HTML elements easier to manage, includes simple 
 ## Installation
 * include the script tag for the element.js file, it creates a window.CloudoubleElement object
 ```
-<script src="https://cdn.jsdelivr.net/gh/cloudouble/element@1.1.1/element.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/cloudouble/element@1.1.3/element.min.js"></script>
 ```
 * to stop undefined elements displaying while ```element.js``` is being loaded, include the following anywhere in your stylesheet: 
 
