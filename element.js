@@ -1,6 +1,6 @@
 /* global fetch customElements HTMLElement CustomEvent */
 window.Cloudouble.Element = window.Cloudouble.Element || Object.defineProperties({}, {
-    version: {configurable: false, enumerable: true, writable: false, value: '1.1.1'}, 
+    version: {configurable: false, enumerable: true, writable: false, value: '1.1.2'}, 
     root: {configurable: false, enumerable: true, writable: true, value: null}, 
     prefix: {configurable: false, enumerable: true, writable: true, value: null}, 
     elements: {configurable: false, enumerable: true, writable: true, value: {}}, 
@@ -59,7 +59,7 @@ window.Cloudouble.Element = window.Cloudouble.Element || Object.defineProperties
                         var scriptText = definitionText.slice(definitionText.indexOf('<script>')+8, definitionText.lastIndexOf('</script>'))
                         scriptText = scriptText.replace(/\/\/.*[\n\r]+/, '').replace(/\/\*.*\*\//, '').trim().replace(/class .* extends/, 'class extends')
                         var componentClassName = `${componentName[0].toUpperCase()}${componentName.slice(1).toLowerCase()}`
-                        var baseClassRegExp = new RegExp(`class\\s+extends\\s+window\\.CloudoubleElement\\.elements\\.(?<baseclass>[A-Z][a-z0-9]+)\\s+\\{`)
+                        var baseClassRegExp = new RegExp(`class\\s+extends\\s+window\\.Cloudouble\\.Element\\.elements\\.(?<baseclass>[A-Z][a-z0-9]+)\\s+\\{`)
                         var baseclassMatches = scriptText.match(baseClassRegExp)
                         if (baseclassMatches && baseclassMatches.groups && baseclassMatches.groups.baseclass) {
                             if (window.Cloudouble.Element.elements[baseclassMatches.groups.baseclass]) {
