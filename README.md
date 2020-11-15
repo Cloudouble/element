@@ -3,7 +3,10 @@ Simple framework to make custom HTML elements easier to manage, includes simple 
 
 ## Installation
 * include the script tag for the element.js file, it creates a window.CloudoubleElement object
-* to stop undefined elements displaying while the element.js library is being fetched, include the following anywhere in your stylesheet: 
+```
+<script src="https://cdn.jsdelivr.net/gh/cloudouble/element@1.1.1/element.min.js"></script>
+```
+* to stop undefined elements displaying while ```element.js``` is being loaded, include the following anywhere in your stylesheet: 
 
 ```
 :not(:defined) {
@@ -12,16 +15,16 @@ Simple framework to make custom HTML elements easier to manage, includes simple 
 ```
 
 ## Usage
-* call window.CloudoubleElement.load() - it returns a Promise that resolves once all custom elements are defined, they should become visible if not already
-* the elements directory contains a set of simple example custom elements for your edification
+* call ```window.Cloudouble.Element.load()``` - it returns a ```Promise``` that resolves once all custom elements are defined, they should become visible if not already
+* the ```cloudouble/elements``` directory contains a set of simple example custom elements for your usage and edification
 
-## Arguments for window.CloudoubleElement.load(elements=null, root=null, namespace=null, prefix=null)
+## Arguments for ```window.Cloudouble.Element.load(elements=null, root=null, namespace=null, prefix=null)```
 
-**elements** => either an array of custom elements to load, or a string name of a .json file living in the same directory that your element definition .html files live, or null if you want to use the default index.json file in the elements definition directory as the list of available custom elements to build
+**elements** => either an array of custom elements to load, or a string name of a ```.json``` file living in the same directory that your element definition ```.html``` files live, or null if you want to use the default ```index.json``` file in the elements definition directory as the list of available custom elements to build
 
 **root** => a URL to the server where your definitions are stored, defaults to the directory of the current web page
 
-**namespace** => a directory path to look for the definitions under the root URL, defaults to 'cloudouble/element'
+**namespace** => a directory path to look for the definitions under the root URL, defaults to ```'cloudouble/element'```
 
 **prefix** => the prefix to use in your HTML markup where you use your custom elements, defaults to the namespace with '/' replaced with '-'.  For example the default markup for the Button element is 
 
@@ -38,8 +41,8 @@ set the prefix (or namespace) to  'test' and make it:
  
  ## Documentation for creating custom elements
 
-* create a single HTML file named after the element (without any prefix) and put it in the $root/$namespace directory
-* ensure that file has one each of style, template and script tags
+* create a single HTML file named after the element (without any prefix) and put it in the ```${window.Cloudouble.Element.root}/${window.Cloudouble.Element.namespace}``` directory
+* ensure that file has one each of ```style```, ```template``` and ```script``` tags
 * the script has to be a clean class definition like (for an custom 'example' element)
 
 ```
