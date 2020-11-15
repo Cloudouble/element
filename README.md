@@ -50,6 +50,18 @@ class Example extends window.CloudoubleElement.elements.Base {
         //...
     }
     
+    static get css() {
+        // put the href URIs for any external stylesheets you need included into the head of the containing page here
+        // stylesheets with the same URI will only be included once
+        return (super.css || []).concat()
+    }
+    
+    static get js() {
+        // put the src URIs for any external scripts you need included at the bottom of body of the containing page here
+        // scripts with the same URI will only be included and executed once
+        return (super.js || []).concat()
+    }
+    
     static get observedAttributes() {
         // put any custom attributes that you want to react to markeup changes in the .concat part of this...
         return (super.observedAttributes || []).concat('name')
