@@ -111,6 +111,23 @@ window.CloudoubleElement = window.CloudoubleElement || Object.defineProperties({
                     }
                 }, get: () => $this.hasAttribute(attrName) ? $this.getAttribute(attrName) : undefined })
             })
+            ;($this.constructor.js || []).forEach(src => {
+                var tag = document.querySelector(`script[src="${src}"]`)
+                if (!tag) {
+                    tag = document.createElement('script')
+                    tag.setAttribute('src', src)
+                    document.body.append(tag)
+                }
+            })
+            ;($this.constructor.css || []).forEach(href => {
+                var tag = document.querySelector(`link[rel="stylesheet"][href="${href}"]`)
+                if (!tag) {
+                    tag = document.createElement('link')
+                    tag.setAttribute('rel', 'stylesheet')
+                    tag.setAttribute('href', href)
+                    document.head.append(tag)
+                }
+            })
         }
         setupUpdatePropertyPropagation() {
             var $this = this
