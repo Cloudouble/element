@@ -4,7 +4,7 @@ Simple framework to make custom HTML elements easier to manage, includes simple 
 ## Installation
 * include the script tag for the element.js file, it creates a window.CloudoubleElement object
 ```
-<script src="https://cdn.jsdelivr.net/gh/cloudouble/element@1.1.3/element.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/cloudouble/element@1.2.0/element.min.js"></script>
 ```
 * to stop undefined elements displaying while ```element.js``` is being loaded, include the following anywhere in your stylesheet: 
 
@@ -77,6 +77,21 @@ class Example extends window.CloudoubleElement.elements.Base {
         //return the value you want it to actually be set to, and also do anything else you want along the way
         //this below ensures that any "name" attributes are always lowercase letters, digits or -, defaults to innerText
         return (value ? value : $this.innerText).replace('[^a-zA-Z0-9\-]+', '-').toLowerCase()
+    }
+    
+    dependentattribute($this, value) {
+        // if setting this value will break unless another condition is already existing, you can add it to the QueuedAttributes list
+        // once the test coding function returns true, the attribute will be set to the given value
+        // $this.addQueuedAttribute(attributename, value-to-be-set-wnen-condition-satisfied, function returning true when condition met, callback to execute once the attribute value is set)
+        var cb = function() { console.log('dependentattribute has been set to ', value) }
+        $this.addQueuedAttribute('dependentattribute', value, function() { 
+            try {
+                return "if some environmental condition is satisfied" ? true : false
+            } catch(e) {
+                return false
+            }
+        }, cb)
+        return value
     }
 
 }

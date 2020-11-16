@@ -1,6 +1,6 @@
 /* global fetch customElements HTMLElement CustomEvent */
 window.Cloudouble.Element = window.Cloudouble.Element || Object.defineProperties({}, {
-    version: {configurable: false, enumerable: true, writable: false, value: '1.1.3'}, 
+    version: {configurable: false, enumerable: true, writable: false, value: '1.2.0'}, 
     root: {configurable: false, enumerable: true, writable: true, value: null}, 
     prefix: {configurable: false, enumerable: true, writable: true, value: null}, 
     elements: {configurable: false, enumerable: true, writable: true, value: {}}, 
@@ -129,6 +129,7 @@ window.Cloudouble.Element = window.Cloudouble.Element || Object.defineProperties
                     document.head.append(tag)
                 }
             })
+            $this.QueuedAttributes = {}
         }
         setupUpdatePropertyPropagation() {
             var $this = this
@@ -139,6 +140,34 @@ window.Cloudouble.Element = window.Cloudouble.Element || Object.defineProperties
                     $this.dispatchEvent(new CustomEvent(`${updateproperty}-change`, {detail: {[updateproperty]: updatepropertyElement.value}}))
                 })
             })
+        }
+        processQueuedAttributes() {
+            var $this = this
+            Object.keys($this.QueuedAttributes).filter(k => {
+                if ($this.QueuedAttributes[k].requires && typeof $this.QueuedAttributes[k].requires == 'function') {
+                    return $this.QueuedAttributes[k].requires()
+                } else {
+                    return true
+                }
+            }).forEach(k => {
+                if ($this.QueuedAttributes[k].attribute && $this.QueuedAttributes[k].value) {
+                    $this.setAttribute($this.QueuedAttributes[k].attribute, $this.QueuedAttributes[k].value)
+                    if (typeof $this.QueuedAttributes[k].callback == 'function') {
+                        $this.QueuedAttributes[k].callback()
+                    }
+                }
+                delete $this.QueuedAttributes[k]
+            })
+            if (!Object.keys($this.QueuedAttributes).length) {
+                window.clearInterval($this.queuedAttributeInterval)
+            }
+        }
+        addQueuedAttribute(attribute, value, requires, callback) {
+            var $this = this
+            $this.QueuedAttributes[`${Date.now()}-${parseInt(Math.random() * 1000000)}`] = {attribute: attribute, value: value, requires: requires, callback: callback}
+            $this.queuedAttributeInterval = $this.queuedAttributeInterval || window.setInterval(function() {
+                $this.processQueuedAttributes()
+            }, 1000)
         }
         static get observedAttributes() {
             return []
