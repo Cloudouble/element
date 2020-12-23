@@ -1,8 +1,9 @@
 /* global fetch customElements HTMLElement CustomEvent */
 window.Cloudouble.Element = window.Cloudouble.Element || Object.defineProperties({}, {
-    version: {configurable: false, enumerable: true, writable: false, value: '1.2.0'}, 
+    version: {configurable: false, enumerable: true, writable: false, value: '1.3.0'}, 
     root: {configurable: false, enumerable: true, writable: true, value: null}, 
     prefix: {configurable: false, enumerable: true, writable: true, value: null}, 
+    tags: {configurable: false, enumerable: true, writable: true, value: {}}, 
     elements: {configurable: false, enumerable: true, writable: true, value: {}}, 
     templates: {configurable: false, enumerable: false, writable: true, value: {}}, 
     loadJSON: {configurable: false, enumerable: false, writable: false, value: function(url) {
@@ -15,7 +16,7 @@ window.Cloudouble.Element = window.Cloudouble.Element || Object.defineProperties
         url = (url.lastIndexOf('.html') == (url.length - '.html'.length)) ? url : `${url}.html`
         return fetch(url).then(r => r.text())
     }}, 
-    load: {configurable: false, enumerable: false, writable: false, value: function(elements=null, root=null, namespace=null, prefix=null) {
+    load: {configurable: false, enumerable: false, writable: false, value: function(elements=null, root=null, prefix=null, namespace=null) {
         namespace = namespace || 'cloudouble/element'
         window.Cloudouble.Element.root = root ? String(root) : (window.Cloudouble.Element.root || `${window.location.origin}${window.location.pathname}`.split('/').slice(0,-1).join('/') + '/' + namespace)
         window.Cloudouble.Element.prefix = prefix ? prefix : namespace.replace(/\//g, '-')
@@ -24,20 +25,26 @@ window.Cloudouble.Element = window.Cloudouble.Element || Object.defineProperties
             if (elements && typeof elements === 'object' && elements.constructor.name === 'Array') {
                 var dependingClasses = {}
                 var promises = []
-                var registerCustomComponent = function(componentClassName, scriptText, tagName, styleDefinition, templateDefinition) {
+                var registerCustomComponent = function(componentClassName, scriptText, tagName, styleDefinition, templateDefinition, baseClassName) {
                     window.Cloudouble.Element.elements[componentClassName] = Function('return ' + scriptText)()
+                    window.Cloudouble.Element.tags[componentClassName] = tagName
                     customElements.define(tagName, class extends window.Cloudouble.Element.elements[componentClassName] {
                         constructor() {
                             super()
                             let shadowRoot = this.shadowRoot || this.attachShadow({mode: 'open'})
-                            let inheritedStyleList = []
-                            shadowRoot.childNodes.forEach(childNode => {
-                                if ((childNode.tagName || '').toLowerCase() === 'style') {
-                                    inheritedStyleList.push(childNode.innerHTML)
-                                }
-                            })
                             shadowRoot.innerHTML = ''
                             let styleNode = document.createElement('style')
+                            let inheritedStyleList = []
+                            if (window.Cloudouble.Element.tags[baseClassName]) {
+                                let baseElementInstance = document.createElement(window.Cloudouble.Element.tags[baseClassName])
+                                let baseClassStyleDefinition = baseElementInstance.shadowRoot.querySelector('style').innerHTML
+                                inheritedStyleList.push(baseClassStyleDefinition)
+                                if (templateDefinition.indexOf('<!-- ELEMENT BASE -->') > -1) {
+                                    baseElementInstance.shadowRoot.querySelector('style').remove()
+                                    baseElementInstance.shadowRoot.querySelector('slot:not([name])').setAttribute('name', baseClassName.toLowerCase())
+                                    templateDefinition = templateDefinition.replace(new RegExp('<!-- ELEMENT BASE -->', 'g'), baseElementInstance.shadowRoot.innerHTML)
+                                }
+                            }
                             inheritedStyleList.push(`/** ${tagName} styles */\n\n` + styleDefinition)
                             styleNode.innerHTML = inheritedStyleList.join("\n\n\n")
                             shadowRoot.appendChild(styleNode)
@@ -63,10 +70,10 @@ window.Cloudouble.Element = window.Cloudouble.Element || Object.defineProperties
                         var baseclassMatches = scriptText.match(baseClassRegExp)
                         if (baseclassMatches && baseclassMatches.groups && baseclassMatches.groups.baseclass) {
                             if (window.Cloudouble.Element.elements[baseclassMatches.groups.baseclass]) {
-                                registerCustomComponent(componentClassName, scriptText, tagName, styleDefinition, templateDefinition)
+                                registerCustomComponent(componentClassName, scriptText, tagName, styleDefinition, templateDefinition, baseclassMatches.groups.baseclass)
                             } else {
                                 dependingClasses[baseclassMatches.groups.baseclass] = dependingClasses[baseclassMatches.groups.baseclass] || []
-                                dependingClasses[baseclassMatches.groups.baseclass].push([componentClassName, scriptText, tagName, styleDefinition, templateDefinition])
+                                dependingClasses[baseclassMatches.groups.baseclass].push([componentClassName, scriptText, tagName, styleDefinition, templateDefinition, baseclassMatches.groups.baseclass])
                             }
                         }
                     }))
