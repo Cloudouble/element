@@ -1,12 +1,12 @@
-# CloudoubleElement
-Simple framework to make custom HTML elements easier to manage, includes simple inheritance of elements from any other element.
+# Element
+Use, extend, inherit and author custom HTML components with simple definition files.
 
 ## Installation
-* include the script tag for the element.js file, it creates a window.Cloudouble.Element object
+* include the script tag for the element.js file, it creates a window.Element object
 ```
 <script src="https://cdn.jsdelivr.net/gh/cloudouble/element@1.3.0/element.min.js"></script>
 ```
-* the following is automatically injected into the HEAD of your page to stop undefined elements displaying while ```element.js``` is being loaded: 
+* the following is automatically prepended to the HEAD of your page to stop undefined elements displaying while ```element.js``` is being loaded: 
 
 ```
 :not(:defined) {
@@ -15,10 +15,10 @@ Simple framework to make custom HTML elements easier to manage, includes simple 
 ```
 
 ## Usage
-* call ```window.Cloudouble.Element.load()``` - it returns a ```Promise``` that resolves once all custom elements are defined, they should become visible if not already
-* the ```cloudouble/elements``` directory contains a set of simple example custom elements for your usage and edification
+* call ```window.Element.load()``` - it returns a ```Promise``` that resolves once all custom elements are defined, they should become visible if not already
+* the ```elements``` directory contains a set of simple example custom elements for your usage and edification
 
-## Arguments for ```window.Cloudouble.Element.load(elements=null, root=null, prefix=null, namespace=null)```
+## Arguments for ```window.Element.load(elements=null, root=null, prefix=null, namespace=null)```
 
 **elements** => either an array of custom elements to load, or a string name of a ```.json``` file living in the same directory that your element definition ```.html``` files live, or null if you want to use the default ```index.json``` file in the elements definition directory as the list of available custom elements to build
 
@@ -26,14 +26,14 @@ Simple framework to make custom HTML elements easier to manage, includes simple 
 
 **prefix** => the prefix to use in your HTML markup where you use your custom elements, defaults to the namespace with '/' replaced with '-'.
 
-**namespace** => a directory path to look for the definitions under the root URL, defaults to ```'cloudouble/element'```
+**namespace** => a directory path to look for the definitions under the root URL, defaults to ```'element'```
 
 
 Example markup for the Button element:
 
 
 ```
-<cloudouble-element-button></cloudouble-element-button>
+<element-button></element-button>
 ```
 
 set the prefix (or namespace) to  'test' and make it:
@@ -45,17 +45,18 @@ set the prefix (or namespace) to  'test' and make it:
  
  ## Documentation for creating custom elements
 
-* create a single HTML file named after the element (without any prefix) and put it in the ```${window.Cloudouble.Element.root}/${window.Cloudouble.Element.namespace}``` directory
+* create a single HTML file named after the element (without any prefix) and put it in the ```${window.Element.root}/${window.Element.namespace}``` directory
 * ensure that file has one each of ```style```, ```template``` and ```script``` tags
 * the script has to be a clean class definition like (for an custom 'example' element)
-* you can inherit from other Elements, simply use their class name instead of ```Base``` as below
+* you can inherit from other Elements, simply use their class name instead of ```HTMLElement``` as below
+* you can specify which native element to ultimately extend from by using it's class name instead of ```HTMLElement``` as below  
 * ancestor elements pass down their stylesheets to their children, with child stylesheets overriding their parents by being placed after
 * child elements can optionally include their parent's HTML template by including ```<!-- ELEMENT BASE -->'``` code anywhere in the child's HTML definition. The parent classes
 HTML will be injected at that point (can be done multiple times). Any unnamed ```slot``` elements in the parent HTML will have a ```name``` attribute set to the lowercase name of 
 the base class.
 
 ```
-class Example extends window.Cloudouble.Element.elements.Base {
+class Example extends window.Element.elements.HTMLElement {
     constructor() {
         //constructor is optional, if you have it make sure you include super() first
         super()

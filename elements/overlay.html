@@ -21,7 +21,7 @@
     transition: height 0.35s;
 }
 
-:host cloudouble-element-button[name=close] {
+:host element-button[name=close] {
     position: absolute;
     top: 0;
     left: calc(50% - 36px);
@@ -32,13 +32,13 @@ h1 {
     text-align: center;
 }
 
-:host cloudouble-element-button[name=close] {
+:host element-button[name=close] {
     position: absolute;
     top: 0;
     left: calc(50% - 36px);
 }
 
-::slotted(input), ::slotted(cloudouble-element-link) {
+::slotted(input), ::slotted(element-link) {
     display: block;
     width: 50%;
     min-width: 100px;
@@ -50,7 +50,7 @@ h1 {
     padding: 5px 10px;
 }
 
-::slotted(cloudouble-element-button.bottom) {
+::slotted(element-button.bottom) {
     position: absolute;
     top: calc(100% - 80px);
     left: calc(50% - 36px);
@@ -61,7 +61,7 @@ h1 {
     width: 100%;
 }
 
-:host-context([id=navigation]) ::slotted(cloudouble-element-link) {
+:host-context([id=navigation]) ::slotted(element-link) {
     width: 240px;
     font-size: 24px;
     height: 32px;
@@ -73,26 +73,22 @@ h1 {
     margin-left: calc(50% - 120px);
     color: var(--widget-font-color);
 }
-:host-context([id=navigation]) ::slotted(cloudouble-element-link[selected=true]) {
+:host-context([id=navigation]) ::slotted(element-link[selected=true]) {
     font-weight: bold;
 }
 </style>
 <template>
-    <cloudouble-element-button icon="cancel" href="javascript:void(0)" name="close">Close</cloudouble-element-button>
+    <element-button icon="cancel" href="javascript:void(0)" name="close">Close</element-button>
     <h1></h1>
     <slot></slot>
 </template>
 <script>
     /* global HTMLElement */
-    class Overlay extends window.Cloudouble.Element.elements.Base {
+    class Overlay extends window.LiveElement.Element.elements.HTMLElement {
         
         constructor() {
             super()
             var $this = this
-            var title = $this.getAttribute('title') || $this.getAttribute('name') ||  $this.getAttribute('id') || ''
-            if (title) {
-                $this.title = title[0].toUpperCase() + title.slice(1)
-            }
         }
 
         static get observedAttributes() {
@@ -101,6 +97,10 @@ h1 {
 
         connectedCallback() {
             var $this = this
+            var title = $this.getAttribute('title') || $this.getAttribute('name') ||  $this.getAttribute('id') || ''
+            if (title) {
+                $this.title = title[0].toUpperCase() + title.slice(1)
+            }
             $this.shadowRoot.querySelector('h1').innerHTML = $this.title
             $this.shadowRoot.querySelector('[name=close]').addEventListener('click', event => {
                 $this.open = false

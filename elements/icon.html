@@ -24,8 +24,8 @@ slot {
     <slot></slot>
 </template>
 <script>
-    /* global */
-    class Icon extends window.Cloudouble.Element.elements.Base {
+    /* global HTMLElement */
+    class Icon extends window.LiveElement.Element.elements.HTMLElement {
         static get css() {
             return (super.css || []).concat(
                 'https:\/\/fonts.googleapis.com\/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone' 

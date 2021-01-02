@@ -25,7 +25,7 @@
     display: block;
     height: 32px;
 }
-:host [name="tab-bar"] cloudouble-element-button {
+:host [name="tab-bar"] element-button {
     display: inline-block;
     margin-top: 0;
     margin-left: 0;
@@ -46,7 +46,7 @@
     color: var(--widget-background-color #ffffff);
     opacity: 0.85;
 }
-:host [name="tab-bar"] cloudouble-element-button[selected] {
+:host [name="tab-bar"] element-button[selected] {
     background-color: var(--widget-background-color, #ffffff);
     color: var(--widget-font-color, #00000);
 }
@@ -59,15 +59,11 @@
 </template>
 <script>
     /* global HTMLElement */
-    class Tabs extends window.Cloudouble.Element.elements.Base {
+    class Tabs extends window.LiveElement.Element.elements.HTMLElement {
         
         constructor() {
             super()
             var $this = this
-            var title = $this.getAttribute('title') || $this.getAttribute('name') ||  $this.getAttribute('id') || ''
-            if (title) {
-                $this.title = title[0].toUpperCase() + title.slice(1)
-            }
         }
 
         static get observedAttributes() {
@@ -78,8 +74,12 @@
             var $this = this
             var tabBar = $this.shadowRoot.querySelector('[name="tab-bar"]')
             var tabs = Array.from($this.querySelectorAll('[tab]'))
+            var title = $this.getAttribute('title') || $this.getAttribute('name') ||  $this.getAttribute('id') || ''
+            if (title) {
+                $this.title = title[0].toUpperCase() + title.slice(1)
+            }
             tabs.forEach(tab => {
-                var tabButton = document.createElement('cloudouble-element-button')
+                var tabButton = document.createElement('element-button')
                 tabButton.innerHTML = tab.getAttribute('tab')
                 if (tab.hasAttribute('icon')) {
                     tabButton.setAttribute('icon', tab.getAttribute('icon'))
@@ -88,7 +88,7 @@
                     tabButton.setAttribute('selected', 'true')
                 }
                 tabButton.addEventListener('click', event => {
-                    tabBar.querySelectorAll('cloudouble-element-button').forEach(pb => {
+                    tabBar.querySelectorAll('element-button').forEach(pb => {
                         pb.removeAttribute('selected')
                     })
                     tabs.forEach(t => {

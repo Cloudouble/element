@@ -19,7 +19,7 @@
     opacity: 0.8;
 }
 
-:host cloudouble-element-icon {
+:host element-icon {
     display: var(--icon-display, block);
     --size-icon: calc(var(--grid, 6px) * 6);
     margin-top: var(--icon-margin-top, calc(var(--grid, 6px) * 1));
@@ -44,7 +44,7 @@
     opacity: 0.5;
     cursor: default;
 }
-:host-context([disabled=true]) cloudouble-element-icon, :host-context([disabled=true]:hover) cloudouble-element-icon, :host-context([disabled=true]) label, :host-context([disabled=true]:hover) label {
+:host-context([disabled=true]) element-icon, :host-context([disabled=true]:hover) element-icon, :host-context([disabled=true]) label, :host-context([disabled=true]:hover) label {
     cursor: default;
 }
 </style>
@@ -53,11 +53,10 @@
 </template>
 <script>
     /* global */
-    class Button extends window.Cloudouble.Element.elements.Link {
-        
+    class Button extends window.LiveElement.Element.elements.Link {
+
         constructor() {
             super()
-            this.href = this.getAttribute('href') || ''
         }
 
         static get observedAttributes() {
@@ -76,7 +75,7 @@
                 } 
             })
             if (!$this.innerText) {
-                var icon = $this.shadowRoot.querySelector('cloudouble-element-icon')
+                var icon = $this.shadowRoot.querySelector('element-icon')
                 if (icon) {
                     icon.setAttribute('style', `--size-icon: ${window.getComputedStyle($this).getPropertyValue('--size-button')}; margin-top: 0;`)
                 }

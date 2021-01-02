@@ -4,7 +4,7 @@
     display: inline-block;
 }
 
-:host cloudouble-element-icon {
+:host element-icon {
     vertical-align: middle;
     margin-right: 0.2em;
 }
@@ -13,12 +13,11 @@
     <span><slot></slot></span>
 </template>
 <script>
-    /* global */
-    class Symbol extends window.Cloudouble.Element.elements.Base {
+    /* global HTMLElement */
+    class Symbol extends window.LiveElement.Element.elements.HTMLElement {
 
         constructor() {
             super()
-            this.name = this.hasAttribute('name') ? this.getAttribute('name') : ''
         }
 
         static get observedAttributes() {
@@ -31,11 +30,10 @@
 
         icon($this, value) {
             var iconNode
-            var imgNode
             if (value && typeof value === 'string') {
-                iconNode = $this.shadowRoot.querySelector('cloudouble-element-icon')
+                iconNode = $this.shadowRoot.querySelector('element-icon')
                 if (!iconNode) {
-                    iconNode = document.createElement('cloudouble-element-icon')
+                    iconNode = document.createElement('element-icon')
                     $this.shadowRoot.prepend(iconNode)
                 }
                 if ((value.slice(0,8) == 'https:\/\/') || (value.slice(0,5) == 'data:')) {
@@ -46,7 +44,7 @@
                 }
                 return value
             } else {
-                iconNode = $this.shadowRoot.querySelector('cloudouble-element-icon')
+                iconNode = $this.shadowRoot.querySelector('element-icon')
                 if (iconNode) {
                     iconNode.remove()
                 }

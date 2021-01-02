@@ -14,11 +14,10 @@
 </template>
 <script>
     /* global */
-    class Link extends window.Cloudouble.Element.elements.Symbol {
+    class Link extends window.LiveElement.Element.elements.Symbol {
         
         constructor() {
             super()
-            this.href = this.getAttribute('href') || ''
         }
         
         connectedCallback() {
