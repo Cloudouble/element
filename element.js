@@ -5,6 +5,8 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
     prefix: {configurable: false, enumerable: true, writable: true, value: null}, 
     tags: {configurable: false, enumerable: true, writable: true, value: {}}, 
     elements: {configurable: false, enumerable: true, writable: true, value: {}}, 
+    files: {configurable: false, enumerable: true, writable: true, value: {}}, 
+    styles: {configurable: false, enumerable: true, writable: true, value: {}}, 
     templates: {configurable: false, enumerable: true, writable: true, value: {}}, 
     definitions: {configurable: false, enumerable: true, writable: true, value: {}}, 
     loadJSON: {configurable: false, enumerable: false, writable: false, value: function(url) {
@@ -20,20 +22,24 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
     defineCustomElement: {configurable: false, enumerable: false, writable: false, value: function(tagName) {
         window.customElements.define(tagName, window.LiveElement.Element.definitions[tagName])
     }}, 
-    registerCustomElement: {configurable: false, enumerable: false, writable: false, value: function(componentClassName, scriptText, tagName, styleDefinition, templateDefinition, baseClassName) {
-        window.LiveElement.Element.elements[componentClassName] = Function('return ' + scriptText)()
-        window.LiveElement.Element.tags[tagName] = componentClassName
-        window.LiveElement.Element.definitions[tagName] = class extends window.LiveElement.Element.elements[componentClassName] {
+    registerCustomElement: {configurable: false, enumerable: false, writable: false, value: function(componentName, scriptText, tagName, styleDefinition, templateDefinition, baseClassName) {
+        window.LiveElement.Element.elements[componentName] = Function('return ' + scriptText)()
+        window.LiveElement.Element.tags[componentName] = tagName
+        window.LiveElement.Element.templates[componentName] = templateDefinition
+        window.LiveElement.Element.definitions[tagName] = class extends window.LiveElement.Element.elements[componentName] {
             constructor() {
                 super()
                 let shadowRoot = this.shadowRoot || this.attachShadow({mode: 'open'})
                 shadowRoot.innerHTML = ''
                 let styleNode = document.createElement('style')
                 let inheritedStyleList = []
+                if (window.LiveElement.Element.styles[baseClassName]) {
+                    inheritedStyleList.push(`/** ${window.LiveElement.Element.tags[baseClassName]} styles */\n\n` + window.LiveElement.Element.styles[baseClassName])
+                }
                 if (window.LiveElement.Element.tags[baseClassName]) {
                     let baseElementInstance = document.createElement(window.LiveElement.Element.tags[baseClassName])
                     let baseClassStyleDefinition = baseElementInstance.shadowRoot.querySelector('style').innerHTML
-                    inheritedStyleList.push(baseClassStyleDefinition)
+                    //inheritedStyleList.push(baseClassStyleDefinition)
                     if (templateDefinition.indexOf('<!-- ELEMENT BASE -->') > -1) {
                         baseElementInstance.shadowRoot.querySelector('style').remove()
                         baseElementInstance.shadowRoot.querySelector('slot:not([name])').setAttribute('name', baseClassName.toLowerCase())
@@ -41,7 +47,9 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
                     }
                 }
                 inheritedStyleList.push(`/** ${tagName} styles */\n\n` + styleDefinition)
-                styleNode.innerHTML = inheritedStyleList.join("\n\n\n")
+                var stackedStyles = inheritedStyleList.join("\n\n\n")
+                styleNode.innerHTML = stackedStyles
+                window.LiveElement.Element.styles[componentName] = stackedStyles
                 shadowRoot.appendChild(styleNode)
                 let templateNode = document.createElement('template')
                 templateNode.innerHTML = templateDefinition
@@ -71,21 +79,20 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
                         if (window.LiveElement.Element.prefix !== 'element') {
                             definitionText = definitionText.replace(/element-/g, `${window.LiveElement.Element.prefix}-`)
                         }
-                        window.LiveElement.Element.templates[componentName] = definitionText
+                        window.LiveElement.Element.files[componentName] = definitionText
                         var tagName = `${window.LiveElement.Element.prefix}-${componentName.toLowerCase()}`
                         var templateDefinition = definitionText.slice(definitionText.indexOf('<template>')+10, definitionText.lastIndexOf('</template>')).trim()
                         var styleDefinition = definitionText.slice(definitionText.indexOf('<style>')+7, definitionText.lastIndexOf('</style>')).trim()
                         var scriptText = definitionText.slice(definitionText.indexOf('<script>')+8, definitionText.lastIndexOf('</script>'))
                         scriptText = scriptText.replace(/\/\/.*[\n\r]+/, '').replace(/\/\*.*\*\//, '').trim().replace(/class .* extends/, 'class extends')
-                        var componentClassName = `${componentName[0].toUpperCase()}${componentName.slice(1).toLowerCase()}`
                         var baseClassRegExp = new RegExp(`class\\s+extends\\s+window\\.LiveElement\\.Element\\.elements\\.(?<baseclass>[A-Z][A-Za-z0-9]+)\\s+\\{`)
                         var baseclassMatches = scriptText.match(baseClassRegExp)
                         if (baseclassMatches && baseclassMatches.groups && baseclassMatches.groups.baseclass) {
                             if (window.LiveElement.Element.elements[baseclassMatches.groups.baseclass]) {
-                                window.LiveElement.Element.registerCustomElement(componentClassName, scriptText, tagName, styleDefinition, templateDefinition, baseclassMatches.groups.baseclass)
+                                window.LiveElement.Element.registerCustomElement(componentName, scriptText, tagName, styleDefinition, templateDefinition, baseclassMatches.groups.baseclass)
                             } else {
                                 dependingClasses[baseclassMatches.groups.baseclass] = dependingClasses[baseclassMatches.groups.baseclass] || []
-                                dependingClasses[baseclassMatches.groups.baseclass].push([componentClassName, scriptText, tagName, styleDefinition, templateDefinition, baseclassMatches.groups.baseclass])
+                                dependingClasses[baseclassMatches.groups.baseclass].push([componentName, scriptText, tagName, styleDefinition, templateDefinition, baseclassMatches.groups.baseclass])
                             }
                         }
                     }))
