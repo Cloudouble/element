@@ -8,6 +8,8 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
     files: {configurable: false, enumerable: true, writable: true, value: {}}, 
     styles: {configurable: false, enumerable: true, writable: true, value: {}}, 
     templates: {configurable: false, enumerable: true, writable: true, value: {}}, 
+    scripts: {configurable: false, enumerable: true, writable: true, value: {}}, 
+    classes: {configurable: false, enumerable: true, writable: true, value: {}}, 
     definitions: {configurable: false, enumerable: true, writable: true, value: {}}, 
     loadJSON: {configurable: false, enumerable: false, writable: false, value: function(url) {
         url = url.indexOf('https://') === 0 ? url : `${window.LiveElement.Element.root}/${url}`
@@ -61,8 +63,8 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
             } 
             templateDefinition = componentNameTemplate.innerHTML
         }
+        window.LiveElement.Element.scripts[componentName] = scriptText
         window.LiveElement.Element.templates[componentName] = templateDefinition
-
         var inheritedStyleList = []
         if (window.LiveElement.Element.styles[baseClassName]) {
             inheritedStyleList.push(window.LiveElement.Element.styles[baseClassName])
@@ -70,6 +72,7 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
         inheritedStyleList.push(`/** ${tagName} styles */\n\n` + styleDefinition)
         var stackedStyles = inheritedStyleList.join("\n\n\n")
         window.LiveElement.Element.styles[componentName] = stackedStyles
+        window.LiveElement.Element.classes[tagName] = componentName
         window.LiveElement.Element.definitions[tagName] = class extends window.LiveElement.Element.elements[componentName] {
             constructor() {
                 super()
@@ -85,7 +88,40 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
         }
         window.LiveElement.Element.defineCustomElement(tagName)
     }}, 
-    activate: {configurable: false, enumerable: false, writable: false, value: function(prefix=null, namespace=null) {
+    build: {configurable: false, enumerable: false, writable: false, value: function() {
+        var buildObject = {
+            definitions: Object.assign({}, ...Object.entries(window.LiveElement.Element.definitions).map(entry => ({[entry[0]]: entry[1].toString()}))), 
+            files: window.LiveElement.Element.files, 
+            styles: window.LiveElement.Element.styles, 
+            classes: window.LiveElement.Element.classes, 
+            scripts: window.LiveElement.Element.scripts, 
+            tags: window.LiveElement.Element.tags, 
+            templates: window.LiveElement.Element.templates
+        }
+        return JSON.stringify(buildObject)
+    }}, 
+    wake: {configurable: false, enumerable: false, writable: false, value: function(buildObject) {
+        if (buildObject && typeof buildObject === 'object') {
+            ;(['classes', 'files', 'styles', 'scripts', 'tags', 'templates']).forEach(k => {
+                if (buildObject[k] && typeof buildObject[k] == 'object') {
+                    window.LiveElement.Element[k] = {...window.LiveElement.Element[k], ...buildObject[k]}
+                }
+            })
+            if (buildObject.classes && typeof buildObject.classes == 'object' && buildObject.definitions && typeof buildObject.definitions == 'object') {
+                window.LiveElement.Element.definitions = window.LiveElement.Element.definitions || {}
+                Object.keys(buildObject.definitions).forEach(tagName => {
+                    console.log('line 113', tagName, buildObject.definitions[tagName])
+                    window.LiveElement.Element.definitions[tagName] = Function(`var componentName = ${window.LiveElement.Element.classes[tagName]}; return ` + buildObject.definitions[tagName])()
+                    console.log('line 115', tagName)
+                    window.LiveElement.Element.defineCustomElement(tagName)
+                })
+            }
+            return true
+        } else {
+            return false
+        }
+    }}, 
+    activate: {configurable: false, enumerable: false, writable: false, value: function(root=null, prefix=null, namespace=null) {
         namespace = namespace || 'elements'
         window.LiveElement.Element.root = (window.LiveElement.Element.root || `${window.location.origin}${window.location.pathname}`.split('/').slice(0,-1).join('/') + '/' + namespace)
         window.LiveElement.Element.prefix = prefix ? prefix : (namespace=='elements'?'element':namespace.replace(/\//g, '-'))
@@ -96,54 +132,60 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
         })
     }}, 
     load: {configurable: false, enumerable: false, writable: false, value: function(elements=null, root=null, prefix=null, namespace=null) {
-        window.LiveElement.Element.activate(prefix, namespace)
-        return ((elements && typeof elements == 'object' && elements.constructor.name == 'Array') ? Promise.resolve(elements) : window.LiveElement.Element.loadJSON(elements ? String(elements) : 'index')).then(elements => {
-            if (elements && typeof elements === 'object' && elements.constructor.name === 'Array') {
-                var dependingClasses = {}
-                var promises = []
-                elements.forEach(componentName => {
-                    promises.push(window.LiveElement.Element.loadHTML(componentName.toLowerCase()).then(definitionText => {
-                        if (window.LiveElement.Element.prefix !== 'element') {
-                            definitionText = definitionText.replace(/element-/g, `${window.LiveElement.Element.prefix}-`)
-                        }
-                        window.LiveElement.Element.files[componentName] = definitionText
-                        var tagName = `${window.LiveElement.Element.prefix}-${componentName.toLowerCase()}`
-                        var templateDefinition = definitionText.slice(definitionText.indexOf('<template>')+10, definitionText.lastIndexOf('</template>')).trim()
-                        var styleDefinition = definitionText.slice(definitionText.indexOf('<style>')+7, definitionText.lastIndexOf('</style>')).trim()
-                        var scriptText = definitionText.slice(definitionText.indexOf('<script>')+8, definitionText.lastIndexOf('</script>'))
-                        scriptText = scriptText.replace(/\/\/.*[\n\r]+/, '').replace(/\/\*.*\*\//, '').trim().replace(/class .* extends/, 'class extends')
-                        var baseClassRegExp = new RegExp(`class\\s+extends\\s+window\\.LiveElement\\.Element\\.elements\\.(?<baseclass>[A-Z][A-Za-z0-9]+)\\s+\\{`)
-                        var baseclassMatches = scriptText.match(baseClassRegExp)
-                        if (baseclassMatches && baseclassMatches.groups && baseclassMatches.groups.baseclass) {
-                            if (window.LiveElement.Element.elements[baseclassMatches.groups.baseclass]) {
-                                window.LiveElement.Element.registerCustomElement(componentName, scriptText, tagName, styleDefinition, templateDefinition, baseclassMatches.groups.baseclass)
-                            } else {
-                                dependingClasses[baseclassMatches.groups.baseclass] = dependingClasses[baseclassMatches.groups.baseclass] || []
-                                dependingClasses[baseclassMatches.groups.baseclass].push([componentName, scriptText, tagName, styleDefinition, templateDefinition, baseclassMatches.groups.baseclass])
+        window.LiveElement.Element.activate(root, prefix, namespace)
+        if (elements && typeof elements === 'object' &&  (['definitions', 'classes', 'files', 'styles', 'scripts', 'tags', 'templates']).every(k => elements[k])) {
+            return Promise.resolve(window.LiveElement.Element.wake(elements))
+        } else {
+            return ((elements && typeof elements == 'object' && elements.constructor.name == 'Array') ? Promise.resolve(elements) : window.LiveElement.Element.loadJSON(elements ? String(elements) : 'index')).then(elements => {
+                if (elements && typeof elements === 'object' && elements.constructor.name === 'Array') {
+                    var dependingClasses = {}
+                    var promises = []
+                    elements.forEach(componentName => {
+                        promises.push(window.LiveElement.Element.loadHTML(componentName.toLowerCase()).then(definitionText => {
+                            if (window.LiveElement.Element.prefix !== 'element') {
+                                definitionText = definitionText.replace(/element-/g, `${window.LiveElement.Element.prefix}-`)
                             }
-                        }
-                    }))
-                })
-                return Promise.all(promises).then(() => {
-                    var counter = 1000
-                    while(counter && Object.keys(dependingClasses).length) {
-                        Object.keys(dependingClasses).forEach(baseClassName => {
-                            if (window.LiveElement.Element.elements[baseClassName]) {
-                                dependingClasses[baseClassName].forEach(argsArray => {
-                                    window.LiveElement.Element.registerCustomElement(...argsArray)
-                                })
-                                delete dependingClasses[baseClassName]
+                            window.LiveElement.Element.files[componentName] = definitionText
+                            var tagName = `${window.LiveElement.Element.prefix}-${componentName.toLowerCase()}`
+                            var templateDefinition = definitionText.slice(definitionText.indexOf('<template>')+10, definitionText.lastIndexOf('</template>')).trim()
+                            var styleDefinition = definitionText.slice(definitionText.indexOf('<style>')+7, definitionText.lastIndexOf('</style>')).trim()
+                            var scriptText = definitionText.slice(definitionText.indexOf('<script>')+8, definitionText.lastIndexOf('</script>'))
+                            scriptText = scriptText.replace(/\/\/.*[\n\r]+/, '').replace(/\/\*.*\*\//, '').trim().replace(/class .* extends/, 'class extends')
+                            var baseClassRegExp = new RegExp(`class\\s+extends\\s+window\\.LiveElement\\.Element\\.elements\\.(?<baseclass>[A-Z][A-Za-z0-9]+)\\s+\\{`)
+                            var baseclassMatches = scriptText.match(baseClassRegExp)
+                            if (baseclassMatches && baseclassMatches.groups && baseclassMatches.groups.baseclass) {
+                                if (window.LiveElement.Element.elements[baseclassMatches.groups.baseclass]) {
+                                    window.LiveElement.Element.registerCustomElement(componentName, scriptText, tagName, styleDefinition, templateDefinition, baseclassMatches.groups.baseclass)
+                                } else {
+                                    dependingClasses[baseclassMatches.groups.baseclass] = dependingClasses[baseclassMatches.groups.baseclass] || []
+                                    dependingClasses[baseclassMatches.groups.baseclass].push([componentName, scriptText, tagName, styleDefinition, templateDefinition, baseclassMatches.groups.baseclass])
+                                }
                             }
-                        })
-                        counter = counter - 1
-                    }
-                })
-            } else {
-                return Promise.resolve(null)
-            }
-        }).catch(err => {
-            console.log(err)
-        })
+                        }))
+                    })
+                    return Promise.all(promises).then(() => {
+                        var counter = 1000
+                        while(counter && Object.keys(dependingClasses).length) {
+                            Object.keys(dependingClasses).forEach(baseClassName => {
+                                if (window.LiveElement.Element.elements[baseClassName]) {
+                                    dependingClasses[baseClassName].forEach(argsArray => {
+                                        window.LiveElement.Element.registerCustomElement(...argsArray)
+                                    })
+                                    delete dependingClasses[baseClassName]
+                                }
+                            })
+                            counter = counter - 1
+                        }
+                    })
+                } else if (elements && typeof elements === 'object' &&  (['definitions', 'classes', 'files', 'styles', 'scripts', 'tags', 'templates']).every(k => elements[k])) {
+                    return Promise.resolve(window.LiveElement.Element.wake(elements))
+                }else {
+                    return Promise.resolve(null)
+                }
+            }).catch(err => {
+                console.log(err)
+            })
+        }
     }}, 
     base: {configurable: false, enumerable: false, writable: false, value: function(baseClass=undefined) {
         baseClass = baseClass || window.HTMLElement
