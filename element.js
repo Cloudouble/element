@@ -35,17 +35,30 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
                     if (tNameTemplate) {
                         let tNameNode = document.createElement('template')
                         tNameNode.innerHTML = tNameTemplate
-                        console.log('line 38', componentName, tName, tNameTemplate)
+                        tNameNode.content.querySelectorAll('slot:not([name])').forEach(unnamedSlot => {
+                            unnamedSlot.setAttribute('name', tName)
+                        })
                         t.replaceWith(tNameNode.content.cloneNode(true))
                     }
                 }
             })
-            /*let fragment = document.createElement('template')
-            fragment.innerHTML = window.LiveElement.Element.templates[baseClassName]
-            let unnamedSlots = fragment.content.querySelector('slot:not([name])')
-            if (unnamedSlots) {
-                unnamedSlots.setAttribute('name', baseClassName.toLowerCase())
-            }*/
+            if (componentNameTemplate.content.children && componentNameTemplate.content.children.length == 1) {
+                var qsChild = Array.from(componentNameTemplate.content.children).filter(c => c.hasAttribute('queryselector'))
+                if (qsChild.length === 1) {
+                    var qs = qsChild[0].getAttribute('queryselector')
+                    qsChild[0].removeAttribute('querySelector')
+                    if (qs) {
+                        var baseTemplateNode = document.createElement('template') 
+                        baseTemplateNode.innerHTML = window.LiveElement.Element.templates[baseClassName]
+                        var baseContainer = baseTemplateNode.content.querySelector(qs)
+                        if (baseContainer) {
+                            baseContainer.innerHTML = ''
+                            baseContainer.append(componentNameTemplate.content.cloneNode(true))
+                            componentNameTemplate.innerHTML = baseTemplateNode.innerHTML
+                        }
+                    }
+                }
+            } 
             templateDefinition = componentNameTemplate.innerHTML
         }
         window.LiveElement.Element.templates[componentName] = templateDefinition
