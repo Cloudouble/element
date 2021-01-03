@@ -43,10 +43,10 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
                 }
             })
             if (componentNameTemplate.content.children && componentNameTemplate.content.children.length == 1) {
-                var qsChild = Array.from(componentNameTemplate.content.children).filter(c => c.hasAttribute('queryselector'))
+                var qsChild = Array.from(componentNameTemplate.content.children).filter(c => c.hasAttribute('container'))
                 if (qsChild.length === 1) {
-                    var qs = qsChild[0].getAttribute('queryselector')
-                    qsChild[0].removeAttribute('querySelector')
+                    var qs = qsChild[0].getAttribute('container')
+                    qsChild[0].removeAttribute('container')
                     if (qs) {
                         var baseTemplateNode = document.createElement('template') 
                         baseTemplateNode.innerHTML = window.LiveElement.Element.templates[baseClassName]
