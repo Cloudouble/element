@@ -110,9 +110,9 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
             if (buildObject.classes && typeof buildObject.classes == 'object' && buildObject.definitions && typeof buildObject.definitions == 'object') {
                 window.LiveElement.Element.definitions = window.LiveElement.Element.definitions || {}
                 Object.keys(buildObject.definitions).forEach(tagName => {
-                    console.log('line 113', tagName, buildObject.definitions[tagName])
-                    window.LiveElement.Element.definitions[tagName] = Function(`var componentName = ${window.LiveElement.Element.classes[tagName]}; return ` + buildObject.definitions[tagName])()
-                    console.log('line 115', tagName)
+                    var componentName = window.LiveElement.Element.classes[tagName]
+                    window.LiveElement.Element.elements[componentName] = Function('return ' + window.LiveElement.Element.scripts[componentName])()
+                    window.LiveElement.Element.definitions[tagName] = Function(`var componentName = "${componentName}"; return ${buildObject.definitions[tagName]}`)()
                     window.LiveElement.Element.defineCustomElement(tagName)
                 })
             }
