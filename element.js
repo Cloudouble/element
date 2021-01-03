@@ -25,34 +25,48 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
     registerCustomElement: {configurable: false, enumerable: false, writable: false, value: function(componentName, scriptText, tagName, styleDefinition, templateDefinition, baseClassName) {
         window.LiveElement.Element.elements[componentName] = Function('return ' + scriptText)()
         window.LiveElement.Element.tags[componentName] = tagName
+        if (window.LiveElement.Element.templates[baseClassName]) {
+            let componentNameTemplate = document.createElement('template')
+            componentNameTemplate.innerHTML = templateDefinition
+            componentNameTemplate.content.querySelectorAll('template').forEach(t => {
+                var tName = t.getAttribute('name')
+                if (tName) {
+                    var tNameTemplate = window.LiveElement.Element.templates[tName]
+                    if (tNameTemplate) {
+                        let tNameNode = document.createElement('template')
+                        tNameNode.innerHTML = tNameTemplate
+                        console.log('line 38', componentName, tName, tNameTemplate)
+                        t.replaceWith(tNameNode.content.cloneNode(true))
+                    }
+                }
+            })
+            /*let fragment = document.createElement('template')
+            fragment.innerHTML = window.LiveElement.Element.templates[baseClassName]
+            let unnamedSlots = fragment.content.querySelector('slot:not([name])')
+            if (unnamedSlots) {
+                unnamedSlots.setAttribute('name', baseClassName.toLowerCase())
+            }*/
+            templateDefinition = componentNameTemplate.innerHTML
+        }
         window.LiveElement.Element.templates[componentName] = templateDefinition
+
+        var inheritedStyleList = []
+        if (window.LiveElement.Element.styles[baseClassName]) {
+            inheritedStyleList.push(window.LiveElement.Element.styles[baseClassName])
+        }
+        inheritedStyleList.push(`/** ${tagName} styles */\n\n` + styleDefinition)
+        var stackedStyles = inheritedStyleList.join("\n\n\n")
+        window.LiveElement.Element.styles[componentName] = stackedStyles
         window.LiveElement.Element.definitions[tagName] = class extends window.LiveElement.Element.elements[componentName] {
             constructor() {
                 super()
                 let shadowRoot = this.shadowRoot || this.attachShadow({mode: 'open'})
                 shadowRoot.innerHTML = ''
                 let styleNode = document.createElement('style')
-                let inheritedStyleList = []
-                if (window.LiveElement.Element.styles[baseClassName]) {
-                    inheritedStyleList.push(`/** ${window.LiveElement.Element.tags[baseClassName]} styles */\n\n` + window.LiveElement.Element.styles[baseClassName])
-                }
-                if (window.LiveElement.Element.tags[baseClassName]) {
-                    let baseElementInstance = document.createElement(window.LiveElement.Element.tags[baseClassName])
-                    let baseClassStyleDefinition = baseElementInstance.shadowRoot.querySelector('style').innerHTML
-                    //inheritedStyleList.push(baseClassStyleDefinition)
-                    if (templateDefinition.indexOf('<!-- ELEMENT BASE -->') > -1) {
-                        baseElementInstance.shadowRoot.querySelector('style').remove()
-                        baseElementInstance.shadowRoot.querySelector('slot:not([name])').setAttribute('name', baseClassName.toLowerCase())
-                        templateDefinition = templateDefinition.replace(new RegExp('<!-- ELEMENT BASE -->', 'g'), baseElementInstance.shadowRoot.innerHTML)
-                    }
-                }
-                inheritedStyleList.push(`/** ${tagName} styles */\n\n` + styleDefinition)
-                var stackedStyles = inheritedStyleList.join("\n\n\n")
-                styleNode.innerHTML = stackedStyles
-                window.LiveElement.Element.styles[componentName] = stackedStyles
+                styleNode.innerHTML = window.LiveElement.Element.styles[componentName]
                 shadowRoot.appendChild(styleNode)
                 let templateNode = document.createElement('template')
-                templateNode.innerHTML = templateDefinition
+                templateNode.innerHTML = window.LiveElement.Element.templates[componentName]
                 shadowRoot.appendChild(templateNode.content.cloneNode(true))
             }
         }
