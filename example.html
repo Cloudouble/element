@@ -12,12 +12,23 @@
 <body>
   <noscript>element requires javascript enabled</noscript>
   
-  <element-button icon="home">Home</element-button>
+  <element-button icon="home">Click Here!</element-button>
   
   <script src="element.js"></script>
   <script>
-      //window.LiveElement.Element.load(['Icon', 'Symbol', 'Link', 'Button'])
-      window.LiveElement.Element.load('example-build.json')
+      /* to use a given list of elements directly, loaded from somewhereelse.com, and they will be available with the myelement- tag prefix  */
+      //window.LiveElement.Element.load(['Icon', 'Symbol', 'Link', 'Button'], 'https://somewhereelse.com/myelements', 'myelement').then(() => { do stuff... })
+      
+      /* to use a list of elements in the element-list.json file */
+      //window.LiveElement.Element.load('element-list.json').then(() => { do stuff... }) 
+      
+      /* to use a list of elements in the elements/index.json file, with the default element- tag prefix */
+      //window.LiveElement.Element.load().then(() => { do stuff... })
+      
+      /* example production use specifying a specific build file */
+      window.LiveElement.Element.load('example-build.json').then(() => {
+        console.log(`Loaded! \n\nCustom tags available are: \n${Object.keys(window.LiveElement.Element.classes).join(', ')}`)
+      })
   </script>
 </body>
 </html>

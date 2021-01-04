@@ -1,9 +1,6 @@
 [
-    "button", 
-    "icon", 
-    "link", 
-    "loading", 
-    "overlay", 
-    "symbol", 
-    "tabs"
+    "Icon", 
+    "Symbol", 
+    "Link", 
+    "Button"
 ]
