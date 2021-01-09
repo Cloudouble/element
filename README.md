@@ -80,6 +80,7 @@ below for details on how to use Element in develop vs production.
 * ```defineCustomElement``` => used as part of the ```load``` process and activates the given tag name by calling ```window.customElements.define``` with the already-existing wrapper
 class. 
 * ```getInheritance``` => pass it a Element class and get an array of it's inheritance chain, ordered from the current class back to 'Schema'
+* ```getTypeSpecificity``` => pass it a list of Element class names and get an array of them filtered to those that are loaded, and ordered with the most specific validation to the least specific
 * ```load``` => the only method you really need to know about for basic use. See the usage section above to learn about it.
 * ```loadHTML``` => takes a URL and returns a ```Promise``` which resolves to the text content of that URL
 * ```loadJSON``` => takes a URL and returns a ```Promise``` which resolves to the live object content of that URL if it is a valid JSON file
