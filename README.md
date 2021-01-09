@@ -5,7 +5,7 @@ the [live-element](https://live-element.net) framework.
 ## Installation
 * include the script tag for the element.js file, it creates a window.Element object
 ```
-<script src="https://cdn.jsdelivr.net/gh/cloudouble/element@1.5.0/element.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/cloudouble/element@1.6.0/element.min.js"></script>
 ```
 * the following is automatically prepended to the HEAD of your page to stop undefined elements displaying while ```element.js``` is being loaded: 
 
@@ -79,6 +79,7 @@ generate all wrapper classes on native element types ready for extending by cust
 below for details on how to use Element in develop vs production.
 * ```defineCustomElement``` => used as part of the ```load``` process and activates the given tag name by calling ```window.customElements.define``` with the already-existing wrapper
 class. 
+* ```getInheritance``` => pass it a Element class and get an array of it's inheritance chain, ordered from the current class back to 'Schema'
 * ```load``` => the only method you really need to know about for basic use. See the usage section above to learn about it.
 * ```loadHTML``` => takes a URL and returns a ```Promise``` which resolves to the text content of that URL
 * ```loadJSON``` => takes a URL and returns a ```Promise``` which resolves to the live object content of that URL if it is a valid JSON file
