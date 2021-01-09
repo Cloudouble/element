@@ -34,6 +34,22 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
         }
         return inheritance
     }}, 
+    getTypeSpecificity: {configurable: false, enumerable: false, writable: false, value: function(typeList) {
+        return typeList.filter(t => window.LiveElement.Element.elements[t]).sort((a, b) => {
+            var bChain = window.LiveElement.Element.getInheritance(window.LiveElement.Element.elements[b])
+            if (window.LiveElement.Element.elements[a].__extends == b) {
+                return -1
+            } else if (window.LiveElement.Element.elements[b].__extends == a) {
+                return 1
+            } else if ( [].concat(window.LiveElement.Element.elements[a].__type).includes('schema:Class') && [].concat(window.LiveElement.Element.elements[b].__type).includes('schema:DataType')  ) {
+                return -1
+            } else if ( [].concat(window.LiveElement.Element.elements[b].__type).includes('schema:Class') && [].concat(window.LiveElement.Element.elements[a].__type).includes('schema:DataType')  ) {
+                return 1
+            } else {
+                return bChain.indexOf(a)
+            }
+        })
+    }}, 
     defineCustomElement: {configurable: false, enumerable: false, writable: false, value: function(tagName) {
         window.customElements.define(tagName, window.LiveElement.Element.definitions[tagName])
     }}, 
