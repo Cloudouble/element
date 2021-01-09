@@ -21,6 +21,19 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
         url = (url.lastIndexOf('.html') == (url.length - '.html'.length)) ? url : `${url}.html`
         return window.fetch(url).then(r => r.text())
     }}, 
+    getInheritance: {configurable: false, enumerable: false, writable: false, value: function(currentType) {
+        var inheritance = []
+        if (currentType) {
+            inheritance.push(currentType._rdfs_label)
+            var count = 1000
+            while (count && currentType && currentType.__extends) { 
+                inheritance.push(currentType.__extends)
+                currentType = window.LiveElement.Element.elements[currentType.__extends] 
+                count = count - 1
+            }
+        }
+        return inheritance
+    }}, 
     defineCustomElement: {configurable: false, enumerable: false, writable: false, value: function(tagName) {
         window.customElements.define(tagName, window.LiveElement.Element.definitions[tagName])
     }}, 
