@@ -5,7 +5,7 @@ the [live-element](https://live-element.net) framework.
 ## Installation
 * include the script tag for the element.js file, it creates a window.Element object
 ```
-<script src="https://cdn.jsdelivr.net/gh/cloudouble/element@1.6.1/element.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/cloudouble/element@1.7.0/element.min.js"></script>
 ```
 * the following is automatically prepended to the HEAD of your page to stop undefined elements displaying while ```element.js``` is being loaded: 
 
@@ -88,6 +88,19 @@ class.
 * ```wake``` => automatically called by the ```load``` process if a build object is detected as the input. It takes a build object and 
 registers all the pre-defined elements there ready for use. You would only call it directly is you had a customized build object to load and 
 wanted to override the default loading process.
+* ```render``` => can be called at any time to take the style, template from one element class and inject it into the target elements HTML. See below for more details.
+
+
+## Using ```render```
+The ```window.LiveElement.Element.render``` method is a powerful way to dynamically 'borrow' style, markup and behaviour from one element to another. It takes the following arguments: 
+* ```element``` => an element instance which is the rendering target
+* ```asClass``` => the name of the base class (must be already loaded) to use as the default source of CSS and HTML 
+* ```renderFunction``` => a function that can be passed with the purpose of altering the behaviour of the target element. It is called after the new CSS and HTML has been injected with the following 
+arguments: ```element, asClass, style, template``` - these are the same values as passed into ```render``` initially
+* ```style``` => this can be boolean ```false``` to instruct ```render``` to NOT inject CSS, or ```true```  (the default) to use the CSS from the ```asClass``` base class, or a string name of a 
+different base class to inject its CSS instead. Injected CSS is added into a second ```style``` node in the shadowRoot after the initial main ```style``` node. 
+* ```template``` => this can be boolean ```false``` to instruct ```render``` to NOT inject HTML, or ```true```  (the default) to use the HTML from the ```asClass``` base class, or a string name of a 
+different base class to inject its HTML instead. The HTML completely replaces the existing shadowRoot HTML, except for keeping the first one or two ```style``` nodes.
 
  
  ## Documentation for creating custom elements

@@ -1,6 +1,6 @@
 window.LiveElement = window.LiveElement || {}
 window.LiveElement.Element = window.LiveElement.Element || Object.defineProperties({}, {
-    version: {configurable: false, enumerable: true, writable: false, value: '1.6.1'}, 
+    version: {configurable: false, enumerable: true, writable: false, value: '1.7.0'}, 
     root: {configurable: false, enumerable: true, writable: true, value: null}, 
     prefix: {configurable: false, enumerable: true, writable: true, value: null}, 
     tags: {configurable: false, enumerable: true, writable: true, value: {}}, 
@@ -292,7 +292,39 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
                 this[attrName] = newVal
             }
         }
-    }} 
+    }}, 
+    render: {configurable: false, enumerable: false, writable: false, value: function(element, asClass, renderFunction=undefined, style=true, template=true) {
+        if (element && typeof element == 'object' && element.constructor._rdfs_label) {
+            var useStyle = style && typeof style == 'string' ? window.LiveElement.Element.styles[style] : undefined
+            useStyle = useStyle || (style && typeof style == 'boolean' && asClass && window.LiveElement.Element.styles[asClass] ? window.LiveElement.Element.styles[asClass] : undefined)
+            useStyle = style === false ? undefined : useStyle
+            if (useStyle) {
+                var styleNode = document.createElement('style')
+                styleNode.innerHTML = useStyle
+                var existingStyleNode = element.shadowRoot.querySelector('style')
+                existingStyleNode.after(styleNode)
+            }
+            var useTemplate = template && typeof template == 'string' ? window.LiveElement.Element.templates[template] : undefined
+            useTemplate = useTemplate || (template && typeof template == 'boolean' && asClass && window.LiveElement.Element.templates[asClass] ? window.LiveElement.Element.templates[asClass] : undefined)
+            useTemplate = template === false ? undefined : useTemplate
+            if (useTemplate) {
+                var mainStyleNode = element.shadowRoot.querySelector('style')
+                var renderStyleNode = element.shadowRoot.querySelector('style + style')
+                mainStyleNode = mainStyleNode ? mainStyleNode.cloneNode(true) : undefined
+                renderStyleNode = renderStyleNode ? renderStyleNode.cloneNode(true) : undefined
+                element.shadowRoot.innerHTML = useTemplate
+                if (renderStyleNode) {
+                    element.shadowRoot.prepend(renderStyleNode)
+                }
+                if (mainStyleNode) {
+                    element.shadowRoot.prepend(mainStyleNode)
+                }
+            }
+            if (renderFunction && typeof renderFunction == 'function') {
+                renderFunction(element, asClass, style, template)
+            }
+        }
+    }}
 })
 var undefinedElementHideStyleElement = document.createElement('style')
 undefinedElementHideStyleElement.innerHTML = ':not(:defined) {display: none;}'
