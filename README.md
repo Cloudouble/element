@@ -5,7 +5,7 @@ the [live-element](https://live-element.net) framework.
 ## Installation
 * include the script tag for the element.js file, it creates a window.Element object
 ```
-<script src="https://cdn.jsdelivr.net/gh/cloudouble/element@1.7.0/element.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/cloudouble/element@1.7.1/element.min.js"></script>
 ```
 * the following is automatically prepended to the HEAD of your page to stop undefined elements displaying while ```element.js``` is being loaded: 
 
@@ -109,6 +109,9 @@ different base class to inject its HTML instead. The HTML completely replaces th
 * ensure that file has one each of ```style```, ```template``` and ```script``` tags
 * the script has to be a clean class definition like (for an custom 'example' element)
 * you can inherit from other Elements, simply use their class name instead of ```HTMLElement``` as below
+* if you are inheriting, also put the name of the parent class as the value of the ```extends``` static property
+* define all properties that can be set / get via attributes in the ```__properties``` static array. One include the current classes' properties, don't include inherited properties, 
+they are automatically taken care of
 * you can specify which native element to ultimately extend from by using it's class name instead of ```HTMLElement``` as below  
 * ancestor elements pass down their stylesheets to their children, with child stylesheets overriding their parents by being placed after
 * child elements can optionally include their parent's HTML template by including ```<template name="Parent"></template>``` code anywhere in the child's HTML definition. 
@@ -140,6 +143,10 @@ The following will place the child template code as the innerHTML of the first `
 
 ```
 class Example extends window.LiveElement.Element.elements.HTMLElement {
+
+    static __extends = 'HTMLElement'
+    static __properties = ['name', 'dependentAttribute']
+
     constructor() {
         //constructor is optional, if you have it make sure you include super() first
         super()
@@ -172,7 +179,7 @@ class Example extends window.LiveElement.Element.elements.HTMLElement {
         return (value ? value : $this.innerText).replace('[^a-zA-Z0-9\-]+', '-').toLowerCase()
     }
     
-    dependentattribute($this, value) {
+    dependentAttribute($this, value) {
         // if setting this value will break unless another condition is already existing, you can add it to the QueuedAttributes list
         // once the test coding function returns true, the attribute will be set to the given value
         // $this.addQueuedAttribute(attributename, value-to-be-set-wnen-condition-satisfied, function returning true when condition met, callback to execute once the attribute value is set)

@@ -1,6 +1,6 @@
 window.LiveElement = window.LiveElement || {}
 window.LiveElement.Element = window.LiveElement.Element || Object.defineProperties({}, {
-    version: {configurable: false, enumerable: true, writable: false, value: '1.7.0'}, 
+    version: {configurable: false, enumerable: true, writable: false, value: '1.7.1'}, 
     root: {configurable: false, enumerable: true, writable: true, value: null}, 
     prefix: {configurable: false, enumerable: true, writable: true, value: null}, 
     tags: {configurable: false, enumerable: true, writable: true, value: {}}, 
@@ -222,21 +222,23 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
             constructor() {
                 super()
                 var $this = this
-                ;($this.constructor.observedAttributes || []).forEach(attrName => {
+                Object.defineProperty($this, '__dict', {configurable: false, enumerable: false, value: {}})
+                ;($this.constructor.__allProperties || []).forEach(attrName => {
+                    var canonicalAttrName = attrName.toLowerCase()
                     var setterFunc = (typeof $this[attrName] === 'function') ? $this[attrName] : undefined
                     delete $this[attrName]
                     Object.defineProperty($this, attrName, {configurable: false, enumerable: true, set: (value) => {
                         if (setterFunc) {
-                            value = setterFunc($this, value)
-                        }
-                        if (value !== undefined) {
-                            if ($this.getAttribute(attrName) !== value) {
-                                $this.setAttribute(attrName, value)
-                            }
+                            $this.__dict[canonicalAttrName] = setterFunc($this, value)
                         } else {
-                            $this.removeAttribute(attrName)
+                            $this.__dict[canonicalAttrName] = value
                         }
-                    }, get: () => $this.hasAttribute(attrName) ? $this.getAttribute(attrName) : undefined })
+                    }, get: () => $this.__dict[canonicalAttrName] })
+                    if (canonicalAttrName != attrName) {
+                        Object.defineProperty($this, canonicalAttrName, {configurable: false, enumerable: false, set: (value) => {
+                            $this[attrName] = value
+                        }, get: () => $this[attrName] })
+                    }
                 })
                 ;($this.constructor.js || []).forEach(src => {
                     var tag = document.querySelector(`script[src="${src}"]`)
