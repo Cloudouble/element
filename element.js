@@ -257,33 +257,33 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
                         document.head.append(tag)
                     }
                 })
-                $this.QueuedAttributes = {}
+                $this.__queuedAttributes = {}
             }
             processQueuedAttributes() {
                 var $this = this
-                Object.keys($this.QueuedAttributes).filter(k => {
-                    if ($this.QueuedAttributes[k].requires && typeof $this.QueuedAttributes[k].requires == 'function') {
-                        return $this.QueuedAttributes[k].requires()
+                Object.keys($this.__queuedAttributes).filter(k => {
+                    if ($this.__queuedAttributes[k].requires && typeof $this.__queuedAttributes[k].requires == 'function') {
+                        return $this.__queuedAttributes[k].requires()
                     } else {
                         return true
                     }
                 }).forEach(k => {
-                    if ($this.QueuedAttributes[k].attribute && $this.QueuedAttributes[k].value) {
-                        $this.setAttribute($this.QueuedAttributes[k].attribute, $this.QueuedAttributes[k].value)
-                        if (typeof $this.QueuedAttributes[k].callback == 'function') {
-                            $this.QueuedAttributes[k].callback()
+                    if ($this.__queuedAttributes[k].attribute && $this.__queuedAttributes[k].value) {
+                        $this.setAttribute($this.__queuedAttributes[k].attribute, $this.__queuedAttributes[k].value)
+                        if (typeof $this.__queuedAttributes[k].callback == 'function') {
+                            $this.__queuedAttributes[k].callback()
                         }
                     }
-                    delete $this.QueuedAttributes[k]
+                    delete $this.__queuedAttributes[k]
                 })
-                if (!Object.keys($this.QueuedAttributes).length) {
-                    window.clearInterval($this.queuedAttributeInterval)
+                if (!Object.keys($this.__queuedAttributes).length) {
+                    window.clearInterval($this.__queuedAttributeInterval)
                 }
             }
             addQueuedAttribute(attribute, value, requires, callback) {
                 var $this = this
-                $this.QueuedAttributes[`${Date.now()}-${parseInt(Math.random() * 1000000)}`] = {attribute: attribute, value: value, requires: requires, callback: callback}
-                $this.queuedAttributeInterval = $this.queuedAttributeInterval || window.setInterval(function() {
+                $this.__queuedAttributes[`${Date.now()}-${parseInt(Math.random() * 1000000)}`] = {attribute: attribute, value: value, requires: requires, callback: callback}
+                $this.__queuedAttributeInterval = $this.__queuedAttributeInterval || window.setInterval(function() {
                     $this.processQueuedAttributes()
                 }, 1000)
             }
