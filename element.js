@@ -1,6 +1,6 @@
 window.LiveElement = window.LiveElement || {}
 window.LiveElement.Element = window.LiveElement.Element || Object.defineProperties({}, {
-    version: {configurable: false, enumerable: true, writable: false, value: '1.7.2'}, 
+    version: {configurable: false, enumerable: true, writable: false, value: '1.7.3'}, 
     root: {configurable: false, enumerable: true, writable: true, value: null}, 
     prefix: {configurable: false, enumerable: true, writable: true, value: null}, 
     tags: {configurable: false, enumerable: true, writable: true, value: {}}, 
@@ -295,7 +295,7 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
             }
         }
     }}, 
-    render: {configurable: false, enumerable: false, writable: false, value: function(element, asClass, renderFunction=undefined, style=true, template=true) {
+    render: {configurable: false, enumerable: false, writable: false, value: function(element, asClass, renderFunction=true, style=true, template=true) {
         if (element && typeof element == 'object' && element.constructor._rdfs_label) {
             var useStyle = style && typeof style == 'string' ? window.LiveElement.Element.styles[style] : undefined
             useStyle = useStyle || (style && typeof style == 'boolean' && asClass && window.LiveElement.Element.styles[asClass] ? window.LiveElement.Element.styles[asClass] : undefined)
@@ -322,8 +322,11 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
                     element.shadowRoot.prepend(mainStyleNode)
                 }
             }
-            if (renderFunction && typeof renderFunction == 'function') {
-                renderFunction(element, asClass, style, template)
+            var useFunction = renderFunction && typeof renderFunction == 'function' ? renderFunction : undefined
+            useFunction = useFunction || (renderFunction && typeof renderFunction == 'boolean' && asClass && window.LiveElement.Element.elements[asClass] && typeof window.LiveElement.Element.elements[asClass].__render == 'function' ? window.LiveElement.Element.elements[asClass].__render : undefined)
+            useFunction = renderFunction === false ? undefined : useFunction
+            if (useFunction && typeof useFunction == 'function') {
+                useFunction(element, asClass, style, template)
             }
         }
     }}
