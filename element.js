@@ -1,6 +1,6 @@
 window.LiveElement = window.LiveElement || {}
 window.LiveElement.Element = window.LiveElement.Element || Object.defineProperties({}, {
-    version: {configurable: false, enumerable: true, writable: false, value: '1.7.4'}, 
+    version: {configurable: false, enumerable: true, writable: false, value: '1.7.5'}, 
     root: {configurable: false, enumerable: true, writable: true, value: null}, 
     prefix: {configurable: false, enumerable: true, writable: true, value: null}, 
     tags: {configurable: false, enumerable: true, writable: true, value: {}}, 
@@ -297,7 +297,7 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
     }}, 
     render: {configurable: false, enumerable: false, writable: false, value: function(element, asClass, renderFunction=true, style=true, template=true) {
         if (element && typeof element == 'object' && element.constructor._rdfs_label) {
-            var useStyle = style && typeof style == 'string' ? window.LiveElement.Element.styles[style] : undefined
+            var useStyle = style && typeof style == 'string' ? (window.LiveElement.Element.styles[style] ? window.LiveElement.Element.styles[style] : style) : undefined
             useStyle = useStyle || (style && typeof style == 'boolean' && asClass && window.LiveElement.Element.styles[asClass] ? window.LiveElement.Element.styles[asClass] : undefined)
             useStyle = style === false ? undefined : useStyle
             if (useStyle) {
@@ -306,7 +306,7 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
                 var existingStyleNode = element.shadowRoot.querySelector('style')
                 existingStyleNode.after(styleNode)
             }
-            var useTemplate = template && typeof template == 'string' ? window.LiveElement.Element.templates[template] : undefined
+            var useTemplate = template && typeof template == 'string' ? (window.LiveElement.Element.templates[template] ? window.LiveElement.Element.templates[template] : template) : undefined
             useTemplate = useTemplate || (template && typeof template == 'boolean' && asClass && window.LiveElement.Element.templates[asClass] ? window.LiveElement.Element.templates[asClass] : undefined)
             useTemplate = template === false ? undefined : useTemplate
             if (useTemplate) {
