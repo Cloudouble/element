@@ -5,7 +5,7 @@ the [live-element](https://live-element.net) framework.
 ## Installation
 * include the script tag for the element.js file, it creates a window.Element object
 ```
-<script src="https://cdn.jsdelivr.net/gh/cloudouble/element@1.7.3/element.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/cloudouble/element@1.7.4/element.min.js"></script>
 ```
 * the following is automatically prepended to the HEAD of your page to stop undefined elements displaying while ```element.js``` is being loaded: 
 
@@ -96,7 +96,8 @@ The ```window.LiveElement.Element.render``` method is a powerful way to dynamica
 * ```element``` => an element instance which is the rendering target
 * ```asClass``` => the name of the base class (must be already loaded) to use as the default source of CSS and HTML 
 * ```renderFunction``` => a function that can be passed with the purpose of altering the behaviour of the target element. It is called after the new CSS and HTML has been injected with the following 
-arguments: ```element, asClass, style, template``` - these are the same values as passed into ```render``` initially
+arguments: ```element, asClass, style, template``` - these are the same values as passed into ```render``` initially. This can also be boolean ```true``` to look for and use the static ```__render``` function 
+if defined on the ```asClass``` element, or boolean ```false``` to instruct not to use a function at all. 
 * ```style``` => this can be boolean ```false``` to instruct ```render``` to NOT inject CSS, or ```true```  (the default) to use the CSS from the ```asClass``` base class, or a string name of a 
 different base class to inject its CSS instead. Injected CSS is added into a second ```style``` node in the shadowRoot after the initial main ```style``` node. 
 * ```template``` => this can be boolean ```false``` to instruct ```render``` to NOT inject HTML, or ```true```  (the default) to use the HTML from the ```asClass``` base class, or a string name of a 
