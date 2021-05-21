@@ -5,7 +5,7 @@ the [live-element](https://live-element.net) framework.
 ## Installation
 * include the script tag for the element.js file, it creates a window.Element object
 ```
-<script src="https://cdn.jsdelivr.net/gh/cloudouble/element@1.7.5/element.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/cloudouble/element@1.7.6/element.min.js"></script>
 ```
 * the following is automatically prepended to the HEAD of your page to stop undefined elements displaying while ```element.js``` is being loaded: 
 
@@ -114,6 +114,8 @@ different base class to inject its HTML instead, or some HTML code as a string. 
 * define all properties that can be set / get via attributes in the ```__properties``` static array. One include the current classes' properties, don't include inherited properties, 
 they are automatically taken care of
 * you can specify which native element to ultimately extend from by using it's class name instead of ```HTMLElement``` as below  
+* if you are not extending ```HTMLElement``` then you must put in a static``` __extendsTag``` property in the definition class, with the value 
+of the tag that you are immediately extending from
 * ancestor elements pass down their stylesheets to their children, with child stylesheets overriding their parents by being placed after
 * child elements can optionally include their parent's HTML template by including ```<template name="Parent"></template>``` code anywhere in the child's HTML definition. 
 The HTML template of the parent class named in the ```name``` attribute will be injected at that point (can be done multiple times). 

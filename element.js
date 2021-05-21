@@ -1,6 +1,6 @@
 window.LiveElement = window.LiveElement || {}
 window.LiveElement.Element = window.LiveElement.Element || Object.defineProperties({}, {
-    version: {configurable: false, enumerable: true, writable: false, value: '1.7.5'}, 
+    version: {configurable: false, enumerable: true, writable: false, value: '1.7.6'}, 
     root: {configurable: false, enumerable: true, writable: true, value: null}, 
     prefix: {configurable: false, enumerable: true, writable: true, value: null}, 
     tags: {configurable: false, enumerable: true, writable: true, value: {}}, 
@@ -51,7 +51,11 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
         })
     }}, 
     defineCustomElement: {configurable: false, enumerable: false, writable: false, value: function(tagName) {
-        window.customElements.define(tagName, window.LiveElement.Element.definitions[tagName])
+        if (window.LiveElement.Element.definitions[tagName].__extendsTag) {
+            window.customElements.define(tagName, window.LiveElement.Element.definitions[tagName], {extends: window.LiveElement.Element.definitions[tagName].__extendsTag})
+        } else {
+            window.customElements.define(tagName, window.LiveElement.Element.definitions[tagName])
+        }
     }}, 
     registerCustomElement: {configurable: false, enumerable: false, writable: false, value: function(componentName, scriptText, tagName, styleDefinition, templateDefinition, baseClassName) {
         window.LiveElement.Element.elements[componentName] = Function('return ' + scriptText)()
@@ -156,7 +160,13 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
         window.LiveElement.Element.prefix = prefix ? prefix : (namespace=='elements'?'element':namespace.replace(/\//g, '-'))
         Reflect.ownKeys(window).filter(k => k.startsWith('HTML') && k.endsWith('Element') ).forEach(nativeClassName => {
             if (!window.LiveElement.Element.elements[nativeClassName]) {
-                window.LiveElement.Element.elements[nativeClassName] = window.LiveElement.Element.base(window[nativeClassName])
+                if (nativeClassName == 'HTMLImageElement') {
+                    window.LiveElement.Element.elements[nativeClassName] = window.LiveElement.Element.base(window['Image'])
+                } else if (nativeClassName == 'HTMLAudioElement') {
+                    window.LiveElement.Element.elements[nativeClassName] = window.LiveElement.Element.base(window['Audio'])
+                } else {
+                    window.LiveElement.Element.elements[nativeClassName] = window.LiveElement.Element.base(window[nativeClassName])
+                }
             }
         })
     }}, 
