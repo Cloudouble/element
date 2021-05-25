@@ -1,6 +1,6 @@
 window.LiveElement = window.LiveElement || {}
 window.LiveElement.Element = window.LiveElement.Element || Object.defineProperties({}, {
-    version: {configurable: false, enumerable: true, writable: false, value: '1.7.6'}, 
+    version: {configurable: false, enumerable: true, writable: false, value: '1.7.7'}, 
     root: {configurable: false, enumerable: true, writable: true, value: null}, 
     prefix: {configurable: false, enumerable: true, writable: true, value: null}, 
     tags: {configurable: false, enumerable: true, writable: true, value: {}}, 
@@ -233,7 +233,7 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
                 super()
                 var $this = this
                 Object.defineProperty($this, '__dict', {configurable: false, enumerable: false, value: {}})
-                ;($this.constructor.__allProperties || []).forEach(attrName => {
+                ;($this.constructor.observedAttributes || []).forEach(attrName => {
                     var canonicalAttrName = attrName.toLowerCase()
                     var setterFunc = (typeof $this[attrName] === 'function') ? $this[attrName] : undefined
                     delete $this[attrName]
