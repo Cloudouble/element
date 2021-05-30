@@ -5,7 +5,7 @@ the [live-element](https://live-element.net) framework.
 ## Installation
 * include the script tag for the element.js file, it creates a window.Element object
 ```
-<script src="https://cdn.jsdelivr.net/gh/cloudouble/element@1.7.7/element.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/cloudouble/element@1.7.8/element.min.js"></script>
 ```
 * the following is automatically prepended to the HEAD of your page to stop undefined elements displaying while ```element.js``` is being loaded: 
 
@@ -111,8 +111,8 @@ different base class to inject its HTML instead, or some HTML code as a string. 
 * the script has to be a clean class definition like (for an custom 'example' element)
 * you can inherit from other Elements, simply use their class name instead of ```HTMLElement``` as below
 * if you are inheriting, also put the name of the parent class as the value of the ```extends``` static property
-* define all properties that can be set / get via attributes in the ```__properties``` static array. One include the current classes' properties, don't include inherited properties, 
-they are automatically taken care of
+* define all properties that can be set / get via attributes in the ```observedAttributes``` static getter function. To include inherited properties, 
+use the structure as shown in the example below.
 * you can specify which native element to ultimately extend from by using it's class name instead of ```HTMLElement``` as below  
 * if you are not extending ```HTMLElement``` then you must put in a static``` __extendsTag``` property in the definition class, with the value 
 of the tag that you are immediately extending from
@@ -148,7 +148,6 @@ The following will place the child template code as the innerHTML of the first `
 class Example extends window.LiveElement.Element.elements.HTMLElement {
 
     static __extends = 'HTMLElement'
-    static __properties = ['name', 'dependentAttribute']
 
     constructor() {
         //constructor is optional, if you have it make sure you include super() first
@@ -156,6 +155,10 @@ class Example extends window.LiveElement.Element.elements.HTMLElement {
         //...
     }
     
+    static get observedAttributes() {
+        return (super.observedAttributes || []).concat('name', 'dependentAttribute')
+    }
+
     static get css() {
         // put the href URIs for any external stylesheets you need included into the head of the containing page here
         // stylesheets with the same URI will only be included once

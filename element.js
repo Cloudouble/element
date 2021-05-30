@@ -1,6 +1,6 @@
 window.LiveElement = window.LiveElement || {}
 window.LiveElement.Element = window.LiveElement.Element || Object.defineProperties({}, {
-    version: {configurable: false, enumerable: true, writable: false, value: '1.7.7'}, 
+    version: {configurable: false, enumerable: true, writable: false, value: '1.7.8'}, 
     root: {configurable: false, enumerable: true, writable: true, value: null}, 
     prefix: {configurable: false, enumerable: true, writable: true, value: null}, 
     tags: {configurable: false, enumerable: true, writable: true, value: {}}, 
@@ -242,6 +242,20 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
                             $this.__dict[canonicalAttrName] = setterFunc($this, value)
                         } else {
                             $this.__dict[canonicalAttrName] = value
+                        }
+                        switch(typeof $this.__dict[canonicalAttrName]) {
+                            case 'string':
+                            case 'number':
+                            case 'boolean':
+                                var newAttributeValue = $this.__dict[canonicalAttrName]
+                                var currentAttributeValue = $this.hasAttribute(canonicalAttrName) ? $this.getAttribute(canonicalAttrName) 
+                                    : ($this.hasAttribute(attrName) ? $this.getAttribute(attrName) : null) 
+                                if (String(currentAttributeValue) != String(newAttributeValue)) {
+                                    $this.setAttribute(canonicalAttrName, String(newAttributeValue))
+                                }
+                                break
+                            default:
+                                $this.removeAttribute(canonicalAttrName)
                         }
                     }, get: () => $this.__dict[canonicalAttrName] })
                     if (canonicalAttrName != attrName) {
