@@ -1,6 +1,6 @@
 window.LiveElement = window.LiveElement || {}
 window.LiveElement.Element = window.LiveElement.Element || Object.defineProperties({}, {
-    version: {configurable: false, enumerable: true, writable: false, value: '1.7.8'}, 
+    version: {configurable: false, enumerable: true, writable: false, value: '1.7.9'}, 
     root: {configurable: false, enumerable: true, writable: true, value: null}, 
     prefix: {configurable: false, enumerable: true, writable: true, value: null}, 
     tags: {configurable: false, enumerable: true, writable: true, value: {}}, 
@@ -232,9 +232,13 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
             constructor() {
                 super()
                 var $this = this
+                var attributeFilter = [...$this.constructor.observedAttributes]
                 Object.defineProperty($this, '__dict', {configurable: false, enumerable: false, value: {}})
                 ;($this.constructor.observedAttributes || []).forEach(attrName => {
                     var canonicalAttrName = attrName.toLowerCase()
+                    if (!attributeFilter.includes(canonicalAttrName)) {
+                        attributeFilter.push(canonicalAttrName)
+                    }
                     var setterFunc = (typeof $this[attrName] === 'function') ? $this[attrName] : undefined
                     delete $this[attrName]
                     Object.defineProperty($this, attrName, {configurable: false, enumerable: true, set: (value) => {
@@ -257,7 +261,26 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
                             default:
                                 $this.removeAttribute(canonicalAttrName)
                         }
-                    }, get: () => $this.__dict[canonicalAttrName] })
+                    }, get: () => {
+                        if (canonicalAttrName in $this.__dict) {
+                            return $this.__dict[canonicalAttrName]
+                        } else {
+                            try {
+                                if ($this.hasAttribute(canonicalAttrName)) {
+                                    $this[attrName] = $this.getAttribute(canonicalAttrName)
+                                } else if ($this.hasAttribute(attrName)) {
+                                    $this[attrName] = $this.getAttribute(attrName)
+                                }
+                            } catch(e) {
+                                if ($this.hasAttribute(canonicalAttrName)) {
+                                    $this.__dict[canonicalAttrName] = $this.getAttribute(canonicalAttrName)
+                                } else if ($this.hasAttribute(attrName)) {
+                                    $this.__dict[canonicalAttrName] = $this.getAttribute(attrName)
+                                }
+                            }
+                            return $this.__dict[canonicalAttrName]
+                        }
+                    } })
                     if (canonicalAttrName != attrName) {
                         Object.defineProperty($this, canonicalAttrName, {configurable: false, enumerable: false, set: (value) => {
                             $this[attrName] = value
@@ -282,6 +305,14 @@ window.LiveElement.Element = window.LiveElement.Element || Object.defineProperti
                     }
                 })
                 $this.__queuedAttributes = {}
+                var observer = new window.MutationObserver(mutationList => {
+                    mutationList.forEach(mutationRecord => {
+                        if (String($this[mutationRecord.attributeName]) != $this.getAttribute(mutationRecord.attributeName)) {
+                            $this[mutationRecord.attributeName] = $this.getAttribute(mutationRecord.attributeName)
+                        }
+                    })
+                })
+                observer.observe($this, {subtree: false, childList: false, attributes: true, attributeFilter: attributeFilter})
             }
             processQueuedAttributes() {
                 var $this = this
